@@ -1,0 +1,109 @@
+Django Rest Framework
+======================
+Prerequisite : Python + Djago
+
+Terminology:
+-------------------
+API
+Web API / Web Service
+REST
+REST API/RESTful Web api/Restful webservice
+Django Rest Framework
+
+1).API:
+	Application Programming Interface
+	The main objective of API is two applications can communicate with each other. API allows external agent to communicate(integrate and exchange information) with our application.
+
+In simple way:'Methods of communication between software components'
+Ex:
+	Samsung mobile phone keypad
+	ATM GUI pannel(withdra, check balance....)
+	Internally one application is there by using GUI end user accessing that application. GUI is API
+Ex:
+		End User
+
+		Java App						API							Django(Django App Dev)
+									API Developers
+		Mobile App
+
+Ex:By using API a java application can communicate with python application
+
+Note:
+	Interface of communication between the user and application is nothing but API. The user can be Human user, an android app or desktop etc......
+
+2).Web API/Web Service:
+-------------------------------------
+	The interface of communication between the user and application over the web by using HTTP is nothing but web API.
+			
+				Java							Web						Web
+				App							API						APP
+Ex:
+	Bookmyshow application can communicate with payment gateway application to complete our booking.
+Ex:
+	Authentication with facebook
+
+3).REST:(Representational State transfer)
+---------------------------------------------------------------
+REST is an architectural style.
+If defines several rules/guide lines to develop web APIs/Web services
+
+By using REST, we can develop web APIs very easily in concise way.
+Hence REST is the most popular architecture to develop web services.
+
+4).RESTFul API:
+-------------------------
+The API which is developed by using REST architecture is nothing but RESTful API
+/ REST API. i.e interface between the user and application where API implements REST architecture.
+
+Note:
+	REST is basically an architecture where as RESTful API is an API that implements REST.
+
+5).Django Rest Framework:
+-----------------------------------------
+Django REST framework is a powerful and flexible toolkit for building web APIs
+It is the most commonly used framework in python world to build WEB API's.
+This framework internally uses all django facilities like models, views, templates, ORM etc....
+
+Ex:
+		sunnyjobs.com
+		one job details share to all students(sms gateways)
+		How sms gateway communicate to our django app(API is required)
+Ex:
+		800 crores people are in world
+		All these people communicate any person to any other person
+
+Ex:common language(HTTP)
+	common message format:JSON/XML	
+			Java													Python
+			Linux												MAC	
+
+										API
+
+			.Net													SAP
+			windows											Linux
+
+1).API:
+	Can be used to access functionality of any application
+	It may be stand alone application/web application/enterprise apps
+
+2).Web API / Web Service:
+	Can be used to access functionality of web application by using HTTP.
+
+3).REST:
+	It is architecture, which provides several guidelines to develop web APIs very easily and effectively.
+
+4).RESTful API:
+	The web API which implements REST principles is called as RESTful API.
+
+5).Django REST Framework:
+	It provides toolki to develop RESTful APIs for django based applications very easily.
+
+The main objective of web APIs is interoperability. i.e different applications can communicate with each other irrespective of develop language and platforms.
+
+Common language:HTTP
+Common message format:JSON
+
+Types of web services:
+	1.SOAP based web services
+	2.RESTful web services
+
