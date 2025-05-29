@@ -107,3 +107,131 @@ Types of web services:
 	1.SOAP based web services
 	2.RESTful web services
 
+Types of web services:
+	1.SOAP based web services
+	2.RESTful web services
+
+1).SOAP Based web services:
+	SOAP:Simple Object Access Protocol
+	SOAP is an XML based protocol for accessing web services.
+
+Limitations:
+	1.SOAP based web services will always provide data only in XM format. Parsing of this XML data is very slow, which creates performance problems.
+	2.Transfer of XML data over network requires more bandwidth.
+	3.Implementing SOAP based web services is very difficult.
+
+Note:
+	Because of heavy weight, less performance and more bandwidth requirements, SOAP based web services are not commonly used these days.
+
+2).RESTful web services:
+	Most of the times RESTful web services will provide data in the form of JSON, parsing is not difficult. Hence this type of web services are faster when compared with SOAP based web services.
+	Transfer of JSON data over the network requires less bandwidth
+
+HTTP Verbs:
+	GET			-->To get one/more resources
+	POST		-->To create a new resource
+	PUT			-->To update a resource
+	PATCH		-->Partial updates just change emp sal
+	DELETE	-->To delete a resource
+
+Web Service Provider vs Web Service Consumer:
+-------------------------------------------------------------------------
+-->The application which is providing web services is called as web service provider.
+-->The application which is consuming web data through web services, is called as web service consumer.
+
+Ex:Bookmyshw app----->Payment Gateway app To complete our booking bookmyshow app will communicates with payment gateway app. Hence payment gateway app acts as web service provider and bookmyshow app acts as web service consumer.
+
+App-1:Django View Function to send HTML Response
+--------------------------------------------------------------------------------
+D:\REST_API_28MAY_4PM>django-admin startproject withoutrest
+D:\REST_API_28MAY_4PM\withoutrest>py manage.py startapp testapp
+Add app in settings.py
+
+views.py
+-------------
+from django.http import  HttpResponse
+def emp_data_view(request):
+    emp_data = {
+        'eno':101,
+        'ename':'Sunny',
+        'esal':12000,
+        'eaddr':'Mumbai'
+    }
+    resp = '<h1>Employee Number:{}<br>Employee Name:{}<br>                     Employee Salary:{}<br>Employee Address:{}</h1>' .format(emp_data['eno'],emp_data['ename'],emp_data['esal'],emp_data['eaddr'])
+    return HttpResponse(resp)
+
+urls.py:
+	path('api/',views.emp_data_view)
+
+Django view function to send HTTPResponse with JSON Data
+---------------------------------------------------------------------------------------------
+Python contains in-built module:json
+dumps():To convert python dictionary to json
+loads():To convert json to python dicttionary
+
+views.py
+-------------
+import json
+def emp_data_json_view(request):
+    emp_data = {
+        'eno':102,
+        'ename':'Radhika',
+        'esal':15000,
+        'eaddr':'Vja'
+    }
+    json_data = json.dumps(emp_data)
+    return HttpResponse(json_data,content_type='application/json')
+
+urls.py:
+	path('apijson/', views.emp_data_json_view)
+
+http request ===> Browser
+		Is it possible to send http request from cmd promt
+
+command line http clients:
+	curl,	httpie
+
+pip install httpie
+
+goto cmd:
+	http http://127.0.0.1:8000/apijson/
+	http http://127.0.0.1:8000/api/
+
+Djnago view function to send JsonResponse directly
+--------------------------------------------------------------------------------
+views.py
+------------
+from django.http import JsonResponse
+def emp_data_json_view2(request):
+    emp_data = {
+        'eno':103,
+        'ename':'Lilly',
+        'esal':18000,
+        'eaddr':'Bng'
+    }
+    return JsonResponse(emp_data)
+
+urls.py:
+	path('apijson2/', views.emp_data_json_view2)
+
+Python application to communicate with Django application
+--------------------------------------------------------------------------------------------
+-->Create a python file test.py in project level
+from the python application === >http
+
+requests module is required
+pip install requests
+
+test.py
+----------
+import requests
+BASE_URL = 'http://127.0.0.1:8000/'
+END_POINT = 'apijson2'
+resp = requests.get(BASE_URL + END_POINT)
+data = resp.json()
+print('Data from django application')
+print('*'*30)
+print('Employee Number:',data['eno'])
+print('Employee Name:',data['ename'])
+print('Employee Salary:',data['esal'])
+print('Employee Address:',data['eaddr'])
