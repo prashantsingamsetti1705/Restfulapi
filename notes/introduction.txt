@@ -235,3 +235,131 @@ print('Employee Number:',data['eno'])
 print('Employee Name:',data['ename'])
 print('Employee Salary:',data['esal'])
 print('Employee Address:',data['eaddr'])
+
+Class Based View(CBV) to send JSON Response
+----------------------------------------------------------------------
+Every class based view in django shuld be extends View class.
+
+-->If it is a FBV.......
+if request.method == 'POST':
+	do this activity
+elif request.method == 'GET':
+	------
+	------
+
+class JSONCBV(View):
+	get():
+		-----
+	post():
+		-----
+	put():
+		------
+
+views.py
+-------------
+from django.views.generic import View
+class JSONCBV(View):
+    def get(self,request,*args,**kwargs):
+        emp_data = {
+            'eno':101,
+            'ename':'Katrina',
+            'esal':22000,
+            'eaddr':'Mumbai'
+        }
+        return JsonResponse(emp_data)
+
+urls.py:
+	path('apijsoncbv/', views.JSONCBV.as_view())
+
+views.py
+------------
+class JSONCBV(View):
+    def get(self,request,*args,**kwargs):
+        json_data = json.dumps({'msg':'This is from GET Method'})
+        return HttpResponse(json_data,content_type='application/json')
+    def post(self,request,*args,**kwargs):
+        json_data = json.dumps({'msg':'This is from POST Method'})
+        return HttpResponse(json_data,content_type='application/json')
+    def put(self,request,*args,**kwargs):
+        json_data = json.dumps({'msg':'This is from PUT Method'})
+        return HttpResponse(json_data,content_type='application/json')
+    def delete(self,request,*args,**kwargs):
+        json_data = json.dumps({'msg':'This is from DELETE Method'})
+        return HttpResponse(json_data,content_type='application/json')
+
+test.py
+----------
+import requests
+BASE_URL = 'http://127.0.0.1:8000/'
+END_POINT = 'apijsoncbv/'
+resp = requests.post(BASE_URL + END_POINT)
+data = resp.json()
+print(data)
+
+-->If it is a post() method we have to disable csrf middleware in settings.py
+
+Mixin:(Mixed In)
+-------------------------
+class which acts as parent class
+to provide functionaity to the child class
+only for child class but not to the parent
+we wont create object for mixin
+
+code re-usability purpose
+
+-->create a python file mixins.py in testapp folder
+
+mixins.py
+--------------
+from django.http import HttpResponse
+class HttpResponseMixin(object):
+    def rende_to_http_response(self,json_data):
+        return HttpResponse(json_data, content_type='application/json')
+
+views.py
+------------
+from testapp.mixins import HttpResponseMixin
+class JSONCBV(HttpResponseMixin,View):
+    def get(self,request,*args,**kwargs):
+        json_data = json.dumps({'msg':'This is from GET Method'})
+        return self.rende_to_http_response(json_data)
+
+status_code:
+	It represents the status of response
+
+1XX--->100 to 199---->Informational(Just information dont close browser....)
+2XX--->200 to 299---->Successful
+3XX--->300 to 399---->Redirectional
+4XX--->400 to 499---->Client error
+5XX--->500 to 599---->Server error
+
+Developing WEB APIs by using 3rd party Django REST framework
+---------------------------------------------------------------------------------------------------
+1.DRF
+2.Tastify etc....
+
+How to install DRF:
+	pip install djangorestframework
+	pip install markdown       
+	pip install django-filter  
+
+pip freeze > requirements.txt
+
+Demo App:
+----------------
+django-admin startproject withrestc1
+py manage.py startapp testapp
+
+Add testapp and 'rest_framework' in settings.py
+
+urls.py
+----------
+path('api-auth/', include('rest_framework.urls'))
+
+Serializers:
+	1.Serialization
+	2.Deserialization
+	3.Validation
+
+Note:
+	DRF Serializers will work very similar to Django Forms and ModelForm classes
