@@ -20,5 +20,7 @@ from testapp import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('apiwithoutjson/',views.emp_data_view),
-    path('apiwithjson1/',views.emp_data_view1)
+    path('apiwithjson1/',views.emp_data_view1),
+    path('apiclassbased/',views.emp_data_view2.as_view()),
+    # path('apiclassbased1/',views.emp_data_view3.as_view())
 ]
