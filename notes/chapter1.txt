@@ -1,0 +1,136 @@
+1.Serialization:
+-----------------------
+The process of converting complex data type(model instance, qs) into python native data type(like dict) is called as serialization. The advantage is converting to json is very easy.
+
+models.py
+---------------
+class Employee(models.Model):
+    eno = models.IntegerField()
+    ename = models.CharField(max_length=30)
+    esal = models.FloatField()
+    eaddr = models.CharField(max_length=30)
+
+serializers.py
+-------------------
+from rest_framework import serializers
+class EmployeeSerializer(serializers.Serializer):
+    eno = serializers.IntegerField()
+    ename = serializers.CharField(max_length=30)
+    esal = serializers.FloatField()
+    eaddr = serializers.CharField(max_length=30)
+
+-->makemigrations and migrate
+
+admin.py
+--------------
+from testapp.models import Employee
+class EmployeeAdmin(admin.ModelAdmin):
+    list_display = ['eno','ename','esal','eaddr']
+admin.site.register(Employee,EmployeeAdmin)
+
+Serialization:
+--------------------
+complex types(like model instance or query set) to python native data type(dict)
+		emp object to dictionary	----->	json is very easy
+
+How to do serialization
+----------------------------------
+Converting employee object to python dict
+-----------------------------------------------------------------
+goto shell:
+	D:\REST_API_28MAY_4PM\withrestc1>py manage.py shell
+	>>> from testapp.models import Employee
+	>>> from testapp.serializers import EmployeeSerializer
+	>>> emp = Employee.objects.get(id=1)
+	>>> emp #	<Employee: Employee object (1)>
+	>>> serializer = EmployeeSerializer(emp)
+	>>> serializer.data 
+	{'eno': 101, 'ename': 'Sunny', 'esal': 12000.0, 'eaddr': 'Mumbai'}
+
+How to convert python native type(dict) to json data:
+---------------------------------------------------------------------------------
+>>> from rest_framework.renderers import JSONRenderer
+>>> json_data = JSONRenderer().render(serializer.data)
+>>> json_data
+b'{"eno":101,"ename":"Sunny","esal":12000.0,"eaddr":"Mumbai"}'
+
+How to perform serialization for qs:
+-----------------------------------------------------
+>>> qs = Employee.objects.all()
+>>> eserializer = EmployeeSerializer(qs,many=True)
+>>> eserializer.data
+>>> json_data = JSONRenderer().render(eserializer.data)
+>>> json_data
+
+Deserialization:
+-----------------------
+The process of converting python native data type(dict) into database supported complex type(model instance, qs) is called as deserializaton.
+
+Convert json to python native data type:
+--------------------------------------------------------------
+import io
+from rest_framework.parsers import  JSONParser
+stream = io.BytesIO(json_data)
+pdata = JSONParser().parse(stream)
+
+By deserialization we have to convert python data to DB supported type
+--------------------------------------------------------------------------------------------------------------
+serializer = EmployeeSerializer(pdata)
+serializer.is_valid()
+serializer.validated_data
+
+Use case of Serialization and Deserialization:
+--------------------------------------------------------------------
+1.Partner application wants all employee records in json format
+		qs-->python native data type(serialization)
+		python native data type--->json data(JSONRenderer().render())
+
+2.Partner application sending json data to create a new employee
+		json data---->python native data type(JSONParser().parse())
+		python native data type---->DB supported complex form(Deserialization)
+
+Application
+------------------
+test.py
+----------
+import requests,json
+BASE_URL = 'http://127.0.0.1:8000/'
+END_POINT = 'api/'
+def get_resource(id = None):
+    data = {}
+    if id is not None:
+        data = {
+            'id':id
+        }
+    resp = requests.get(BASE_URL + END_POINT, data=json.dumps(data))
+    print(resp.status_code)
+    print(resp.json())
+get_resource()
+
+views.py
+-------------
+import io
+from django.views.generic import View
+from rest_framework.parsers import  JSONParser
+from testapp.models import Employee
+from testapp.serializers import EmployeeSerializer
+from rest_framework.renderers import JSONRenderer
+from django.http import HttpResponse
+class EmployeeCRUDCBV(View):
+    def get(self,request):
+        json_data = request.body
+        stream = io.BytesIO(json_data)
+        pdata = JSONParser().parse(stream)
+        id = pdata.get('id',None)
+        if id is not None:
+            emp = Employee.objects.get(id=id)
+            serializer = EmployeeSerializer(emp)
+            json_data = JSONRenderer().render(serializer.data)
+            return HttpResponse(json_data,content_type='application/json')
+        qs = Employee.objects.all()
+        eserializer = EmployeeSerializer(qs, many=True)
+        json_data = JSONRenderer().render(eserializer.data)
+        return HttpResponse(json_data, content_type='application/json')
+
+urls.py:
+	path('api/',views.EmployeeCRUDCBV.as_view())
