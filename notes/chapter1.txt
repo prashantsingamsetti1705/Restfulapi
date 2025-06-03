@@ -285,3 +285,123 @@ Validatons by using serializers:
 
 3.By using validators
 		in-built validators
+
+1.Field level validation:
+		esal min 5000
+
+clean_esal()
+clean()
+
+vaidate_esal()
+validate()
+
+serializers.py
+--------------------
+class EmployeeSerializer(serializers.Serializer):
+	-----------
+	def validate_esal(self,value):
+        if value < 5000:
+            raise serializers.ValidationError('Employee salary should be minimum 5000')
+        return value
+
+2).Object level validation:
+		If ename is sunny then compulsory esal should be min 50000
+		validate()
+
+serializers.py
+--------------------
+    def validate(self,data):
+        ename = data.get('ename')
+        esal = data.get('esal')
+        if ename.lower() == 'sunny':
+            if esal < 50000:
+                raise serializers.ValidationError('Sunny sal should be minimum 50000')
+        return data
+
+3).By using validator attribute
+----------------------------------------------
+ename = serializers.CharField(max_length=4)
+
+D:\REST_API_28MAY_4PM\withrestc1>py test.py
+400
+{'ename': ['Ensure this field has no more than 4 characters.']}
+
+serializers.py
+--------------------
+def multiples_of_1000(value):
+    print('Validation by validator attribute')
+    if value%1000 != 0:
+        raise serializers.ValidationError('Employee sal should be multiples of 1000')
+
+ esal = serializers.FloatField(validators=[multiples_of_1000])
+
+Problems with normal serialization
+----------------------------------------------------
+1.We have to define all fields(like eno,ename,esal......)
+2.Implement create() and update() methods explicitly
+				we should go for ModelSerializer
+
+serializers.py
+-------------------
+class EmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = '__all__'
+
+field validation:
+-------------------------
+class EmployeeSerializer(serializers.ModelSerializer):
+    esal = serializers.FloatField(validators=[multiples_of_1000])
+ 
+Django REST Framework Views:
+-------------------------------------------------
+	DRF provides 2-classes to define business logic for our API Views
+
+1.APIView
+2.ViewSet
+
+1).APIView:
+-----------------
+-->It is the most basic class to build REST APIs. It is similar to Django traditional View class.
+-->It is the child class to Django View class.
+-->It allows us to use standard HTTP methods as functions like get(),post(),put()..
+-->We have to write complete code for business logic and hence programmer having complete control on the logic.
+-->We can understand flow of execution very clearly.
+-->Best suitable for complex operations like working with multiple datasource.
+-->We have to define url mappings manually.
+
+2).ViewSet:
+----------------
+list(),create(),retrieve(),update(),partial_update(),destroy()
+developing very simple API's
+CRUD API
+Router concept
+
+How to send Response in APIViews:
+------------------------------------------------------
+django-admin startproject withrestc2
+py manage.py startapp testapp
+Add 'rest_framework' and 'testapp' in settings.py
+
+views.py
+------------
+from rest_framework.views import APIView
+from rest_framework.response import Response
+class TestAPIView(APIView):
+    def get(self,request,*args,**kwargs):
+        colors = ['RED','YELLOW','GREEN','BLUE']
+        return Response({'msg':'Happy Valentines Day....','colors':colors})#Response class is responsible to convert python dict to json_data
+
+urls.py:
+	path('api/', views.TestAPIView.as_view())
+
+views.py
+------------
+def put(self,request):
+	return Response({'msg': 'This response from PUT method APIView'})
+
+def delete(self,request):
+	return Response({'msg': 'This response from DELETE method APIView'})
+
+def patch(self,request):
+    return Response({'msg': 'This response from PATCH method APIView'})
