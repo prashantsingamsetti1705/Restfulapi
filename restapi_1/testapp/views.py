@@ -22,7 +22,7 @@ class EmployeeCRUDCBV(View):
         json_data=JSONRenderer().render(msg)
         return HttpResponse(json_data,content_type='application/json')
 
-    def put(slef,request):
+    def put(self,request):
         json_data=request.body
         stream=io.BytesIO(json_data)
         pdata=JSONParser().parse(stream)
