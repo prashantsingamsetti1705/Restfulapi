@@ -134,3 +134,154 @@ class EmployeeCRUDCBV(View):
 
 urls.py:
 	path('api/',views.EmployeeCRUDCBV.as_view())
+
+POST:
+---------
+	We have to override create() method inside serializer class.
+
+serializers.py
+--------------------
+from testapp.models import Employee
+class EmployeeSerializer(serializers.Serializer):
+	-------------
+    def create(self, validated_data):
+        return Employee.objects.create(**validated_data)
+
+test.py
+----------
+def create_resource():
+    new_emp = {
+        'eno':105,
+        'ename':'Pinny',
+        'esal':18000,
+        'eaddr':'Vja'
+    }
+    resp = requests.post(BASE_URL + END_POINT, data=json.dumps(new_emp))
+    print(resp.status_code)
+    print(resp.json())
+create_resource()
+
+To create resource we have to disable csrf_token
+
+views.py
+-------------
+import io
+from django.http import HttpResponse
+from rest_framework.parsers import JSONParser
+from rest_framework.renderers import JSONRenderer
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+@method_decorator(csrf_exempt,name='dispatch')
+class EmployeeCRUDCBV(View):
+    def post(self,request,*args,**kwargs):
+        json_data = request.body
+        stream = io.BytesIO(json_data)
+        pdata = JSONParser().parse(stream)
+        serializer = EmployeeSerializer(data=pdata)
+        if serializer.is_valid():
+            serializer.save()
+            msg = {'msg':'Resource created successfully.....'}
+            json_data = JSONRenderer().render(msg)
+            return HttpResponse(json_data,content_type='application/json')
+        json_data = JSONRenderer().render(serializer.errors)
+        return HttpResponse(json_data, content_type='application/json',status=400)
+
+PUT:
+	updation:
+		partial updation
+		full updation
+		update() method override in serializer class
+
+update record with pk-1 with provided data
+			==>Existing instance, provided data must be required.
+
+serializers.py
+--------------------
+    def update(self, instance, validated_data):
+        instance.eno = validated_data.get('eno',instance.eno)
+        instance.ename = validated_data.get('ename', instance.ename)
+        instance.esal = validated_data.get('esal', instance.esal)
+        instance.eaddr = validated_data.get('eaddr', instance.eaddr)
+        instance.save()
+        return instance
+
+views.py
+-------------
+    def put(self,request,*args,**kwargs):
+        json_data = request.body
+        stream = io.BytesIO(json_data)
+        pdata = JSONParser().parse(stream)
+        id = pdata.get('id')
+        emp = Employee.objects.get(id=id)
+        serializer = EmployeeSerializer(emp,data=pdata)
+        if serializer.is_valid():
+            serializer.save()
+            msg = {'msg':'Resource updated successfully.....'}
+            json_data = JSONRenderer().render(msg)
+            return HttpResponse(json_data,content_type='application/json')
+        json_data = JSONRenderer().render(serializer.errors)
+        return HttpResponse(json_data, content_type='application/json',status=400)
+
+test.py
+----------
+def update_resource(id):
+    new_emp = {
+        'id':id,
+        'esal':32000,
+        'eaddr':'Delhi'
+    }
+    resp = requests.put(BASE_URL + END_POINT, data=json.dumps(new_emp))
+    print(resp.status_code)
+    print(resp.json())
+update_resource(1)
+
+D:\REST_API_28MAY_4PM\withrestc1>py test.py
+400
+{'eno': ['This field is required.'], 'ename': ['This field is required.']}
+
+-->We provided only two-fields
+-->Provide all fields in test.py then run
+-->For partial updation we have to give:
+	serializer = EmployeeSerializer(emp,data=pdata,partial=True)
+
+DELETE:
+-------------
+test.py
+----------
+def delete_resource(id):
+    data = {
+        'id':id
+    }
+    resp = requests.delete(BASE_URL + END_POINT, data=json.dumps(data))
+    print(resp.status_code)
+    print(resp.json())
+delete_resource(1)
+
+views.py
+-------------
+def delete(self,request,*args,**kwargs):
+	json_data = request.body
+    stream = io.BytesIO(json_data)
+    pdata = JSONParser().parse(stream)
+    id = pdata.get('id')
+    emp = Employee.objects.get(id=id)
+    emp.delete()
+    msg = {'msg':'Resource deleted successfully....'}
+    json_data = JSONRenderer().render(msg)
+    return HttpResponse(json_data,content_type='application/json')
+
+Serializers:
+	1.Serialization
+	2.Deserialization
+	3.Validations
+
+Validatons by using serializers:
+-----------------------------------------------
+1.Field level validation
+		esal min 5000
+
+2.Object level validation
+		If name is sunny then compulsory esal should be min 50000
+
+3.By using validators
+		in-built validators
