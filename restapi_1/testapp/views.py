@@ -38,16 +38,16 @@ class EmployeeCRUDCBV(View):
         return HttpResponse(json_data,content_type='application/json',status=400)
     def post(self,request):
         json_data=request.body
-        straem=io.BytesIO(json_data)
-        pdata=JSONParser().parse(straem)
+        stream=io.BytesIO(json_data)
+        pdata=JSONParser().parse(stream) 
         serializer=EmployeeSerializer(data=pdata)
         if serializer.is_valid():
             serializer.save()
             msg = {'msg':'Resource created successfully.....'}
             json_data=JSONRenderer().render(msg)
-            return HttpResponse(json_data,content='application/json')
+            return HttpResponse(json_data,content_type='application/json')
         json_data=JSONRenderer().render(serializer.errors)
-        return HttpResponse(json_data,content='application/json',status=400)
+        return HttpResponse(json_data,content_type='application/json',status=400)
     def get(self,request):
         json_data=request.body
         stream=io.BytesIO(json_data)

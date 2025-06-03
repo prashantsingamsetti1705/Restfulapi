@@ -7,7 +7,7 @@ class EmployeeSerializer(serializers.Serializer):
      eaddr=serializers.CharField()
      def create(self, validated_data):
         return Employee.objects.create(**validated_data)
-     def upadte(self,instance,validated_data):
+     def update(self,instance,validated_data):
         instance.eno=validated_data.get('eno',instance.eno)
         instance.ename=validated_data.get('ename',instance.ename)
         instance.esal=validated_data.get('esal',instance.esal)

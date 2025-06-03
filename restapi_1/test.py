@@ -1,26 +1,26 @@
 import requests,json
 Base_url="http://127.0.0.1:8000/"
 End_point="api/"
-def delte_resource(id):
+# def delte_resource(id):
+#     up_data={
+#         "id":id
+#     }
+#     resp=requests.delete(Base_url+End_point,data=json.dumps(up_data))
+#     print(resp.status_code)
+#     print(resp.json())
+# delte_resource(1)
+def update_resource(id):
     up_data={
-        "id":id
+        "id":id,
+        "esal":15500,
+        "eaddr":'pune',
     }
     resp=requests.put(Base_url+End_point,data=json.dumps(up_data))
     print(resp.status_code)
     print(resp.json())
-delte_resource(1)
-# def update_resource(id):
-#     up_data={
-#         "id":id,
-#         "esal":15500,
-#         "eaddr":'pune',
-#     }
-#     resp=requests.put(Base_url+End_point,data=json.dumps(up_data))
-#     print(resp.status_code)
-#     print(resp.json())
-# update_resource(1)
+update_resource(2)
 #  this for put the resource
-# def create_resource()
+# def create_resource():
 #     new_data={
 #         "eno":102,
 #         "ename":'raj',
