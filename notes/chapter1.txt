@@ -405,3 +405,183 @@ def delete(self,request):
 
 def patch(self,request):
     return Response({'msg': 'This response from PATCH method APIView'})
+
+ViewSet:
+-------------
+APIView:get(),post(),put(),patch(),delete()
+ViewSet:
+			list()						---->To get all resources/records
+			retrieve()				---->To get a specific resource
+			create()					---->To create a new resource
+			update()				---->To update a resource
+			partial_update()		---->To update some columns in a resource
+			destroy()				---->To delete a resource
+
+When ViewSets are best choice:
+------------------------------------------------
+1).If we want to develop a simple CRUD interface to our database.
+2).If we want to develop a simple and quick API to manage predefined objects.
+3).If we are performing only standard operations with very less or no customization.
+4).If we are not performing any complex operations.
+
+views.py
+-------------
+from rest_framework.viewsets import ViewSet
+class TestViewSet(ViewSet):
+    def list(self,request):
+        colors = ['RED','YELLOW','GREEN','BLUE']
+        return Response({'msg':'RCB won the IPL Cup','colors':colors})
+
+urls.py:
+-----------
+ViewSet:
+	Router will map view to urls automatically
+DefaultRouter ---->class
+
+from rest_framework.routers import DefaultRouter
+router = DefaultRouter()
+router.register('test-view-set',views.TestViewSet,basename='test-view-set')
+urlpatterns = [
+    path('',include(router.urls))
+]
+
+views.py
+-------------
+ def retrieve(self,request,pk=None):
+        return Response({'msg':'This response from RETRIEVE method ViewSet'})
+ def update(self,request,pk=None):
+        return Response({'msg':'This response from UPDATE method ViewSet'})
+ def partial_update(self,request,pk=None):
+        return Response({'msg':'This response from PARTIAL_UPDATE method ViewSet'})
+ def destroy(self,request,pk=None):
+        return Response({'msg':'This response from DESTROY method ViewSet'})
+
+Django Developer:
+---------------------------
+sunnyjobs:
+	sunnyjobs:
+		settings.py
+		urls.py
+		----
+		----
+	testapp:
+		views.py
+		models.py
+		admin.py
+		api:
+			views.py(business logic for api)
+			urls.py(end point)
+
+APIView with models:
+--------------------------------
+django-admin startproject withrestc3
+py manage.py startapp testapp
+Add 'rest_framework' and 'testapp'
+
+models.py
+---------------
+class Employee(models.Model):
+    eno = models.IntegerField()
+    ename = models.CharField(max_length=30)
+    esal = models.FloatField()
+    eaddr = models.CharField(max_length=30)
+
+-->makemigrations and migrate
+
+admin.py
+--------------
+from testapp.models import Employee
+class EmployeeAdmin(admin.ModelAdmin):
+    list_display = ['id','eno','ename','esal','eaddr']
+admin.site.register(Employee,EmployeeAdmin)
+
+serializers.py
+--------------------
+from rest_framework.serializers import ModelSerializer
+from testapp.models import Employee
+class EmployeeSerializer(ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = '__all__'
+
+views.py
+-------------
+from rest_framework.views import APIView
+from testapp.models import Employee
+from testapp.serializers import EmployeeSerializer
+from rest_framework.response import Response
+class EmployeeListAPIView(APIView):
+    def get(self,request):
+        qs = Employee.objects.all()
+        serializer = EmployeeSerializer(qs,many=True)
+        return Response(serializer.data)
+
+urls.py:
+	path('api/',views.EmployeeListAPIView.as_view())
+
+To list operation:
+--------------------------
+ListAPIView	---> class
+generics ---> module
+
+views.py
+-------------
+from rest_framework.generics import ListAPIView
+class EmployeeListAPIView(ListAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+send request:
+	http://127.0.0.1:8000/api/
+
+To implement Create operation:
+------------------------------------------------
+CreateAPIView
+
+views.py
+------------
+class EmployeeCreateAPIView(CreateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+urls.py:
+	path('api/', views.EmployeeCreateAPIView.as_view())
+
+Retrieve operation
+----------------------------
+RetrieveAPIView
+
+class EmployeeRetrieveView(RetrieveAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+
+urls.py:
+	path('api/<int:pk>', views.EmployeeRetrieveView.as_view())
+
+change pk as id in urls.py
+---------------------------------------
+path('api/<int:pk>', views.EmployeeRetrieveView.as_view())
+
+refresh browser--->we will get an error
+just we have to add lookup_field in views.py
+			lookup_field = 'id'
+
+Update Operation:
+----------------------------
+class EmployeeUpdateAPIView(UpdateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+    lookup_field = 'id'
+
+urls.py:
+	path('api/<int:id>', views.EmployeeUpdateAPIView.as_view())
+
+Delete Opeartion:
+---------------------------
+class EmployeeDestroyAPIView(DestroyAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+    lookup_field = 'id'
+
+urls.py:
+	path('api/<int:id>', views.EmployeeDestroyAPIView.as_view())
